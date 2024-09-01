@@ -13,9 +13,9 @@ function roll(): array
     return $result;
 }
 
-function convert_roll_result(array $roll_numbers): array
+function convert_roll_result(array $rollNumbers): array
 {
-    $roll_display_result = [];
+    $rollDisplayResult = [];
     $converter = [
         1 => 'C',
         2 => 'L',
@@ -23,23 +23,23 @@ function convert_roll_result(array $roll_numbers): array
         4 => 'W',
     ];
 
-    foreach($roll_numbers as $key => $value)
+    foreach($rollNumbers as $key => $value)
     {
-        $roll_display_result[$key] = $converter[$value];
+        $rollDisplayResult[$key] = $converter[$value];
     }
 
-    return $roll_display_result;
+    return $rollDisplayResult;
 }
 
-function is_won($roll_results): array
+function is_won($rollResults): array
 {
     $result = [
-        'won' => count(array_unique($roll_results)) == 1
+        'won' => count(array_unique($rollResults)) == 1
     ];
 
     if($result['won'])
     {
-        $result['credits_add'] = $roll_results[0] * 10;
+        $result['credits_add'] = $rollResults[0] * 10;
     }
     else
     {
@@ -49,11 +49,11 @@ function is_won($roll_results): array
     return $result;
 }
 
-function is_to_reroll(int $chance_percent): bool
+function is_to_reroll(int $chancePercent): bool
 {
-    $random_reroll = rand(1, 100);
+    $randomReroll = rand(1, 100);
 
-    if($random_reroll < $chance_percent)
+    if($randomReroll < $chancePercent)
     {
         return true;
     }
@@ -63,13 +63,13 @@ function is_to_reroll(int $chance_percent): bool
     }
 }
 
-function get_final_result($roll_res, $winning_res): array
+function get_final_result($rollRes, $winningRes): array
 {
     $result = [
-        "items" => convert_roll_result($roll_res)
+        "items" => convert_roll_result($rollRes)
     ];
 
-    return array_merge($result, $winning_res);
+    return array_merge($result, $winningRes);
 }
 
 if($_SESSION['credit'] == 0)
@@ -82,27 +82,27 @@ if($_SESSION['credit'] == 0)
     exit;
 }
 
-$roll_res = roll();
-$winning_res = is_won($roll_res);
+$rollRes = roll();
+$winningRes = is_won($rollRes);
 
-if($winning_res['won'] && $_SESSION['credit'] >= 40 && $_SESSION['credit'] < 60 && is_to_reroll(30))
+if($winningRes['won'] && $_SESSION['credit'] >= 40 && $_SESSION['credit'] < 60 && is_to_reroll(30))
 {
-    $roll_res = roll();
-    $winning_res = is_won($roll_res);
+    $rollRes = roll();
+    $winningRes = is_won($rollRes);
 }
 
-if($winning_res['won'] && $_SESSION['credit'] >= 60 && is_to_reroll(60))
+if($winningRes['won'] && $_SESSION['credit'] >= 60 && is_to_reroll(60))
 {
-    $roll_res = roll();
-    $winning_res = is_won($roll_res);
+    $rollRes = roll();
+    $winningRes = is_won($rollRes);
 }
 
-$_SESSION['credit'] += $winning_res['credits_add'];
+$_SESSION['credit'] += $winningRes['credits_add'];
 
-$final_res = get_final_result($roll_res, $winning_res);
+$finalRes = get_final_result($rollRes, $winningRes);
 
-unset($final_res['credits_add']);
-$final_res['credits'] = $_SESSION['credit'];
+unset($finalRes['credits_add']);
+$finalRes['credits'] = $_SESSION['credit'];
 
 header('Content-Type: application/json');
-echo json_encode($final_res);
+echo json_encode($finalRes);

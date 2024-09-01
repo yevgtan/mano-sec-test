@@ -1,4 +1,4 @@
 <?php
 
 session_start();
-unset($_SESSION['credit']);
+session_unset();
